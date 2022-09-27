@@ -1,4 +1,4 @@
-/* Calculate the frequency of a midi note from a user's input. */
+/* Calculate the frequency of a midi note from a user's input. P.69,76. */
 
 #include <stdio.h>
 #include <math.h>

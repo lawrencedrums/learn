@@ -1,3 +1,5 @@
+/* C program for analysing serial music. P.41. */
+
 #include <stdio.h>
 #include <stdlib.h>
 
