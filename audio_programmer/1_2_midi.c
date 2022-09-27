@@ -8,15 +8,15 @@ char* notes[] = {"C", "Db", "D", "Eb",
                  "Ab", "A", "Bb", "B"};
 
 int main() {
-    double semitone_ratio = pow(2, 1/12.0);
+    double semitone_ratio = pow(2, 1.0/12.0);
     double frequency, fracmidi;
     double c0; /* for frequency of MIDI note 0 */
     double c5; /* for frequency of middle C */
     int midi_note;
 
     do {
-	printf("MIDI note (0-127): ");
-	scanf("%d", &midi_note);
+		printf("MIDI note (0-127): ");
+		scanf("%d", &midi_note);
     } while (midi_note > 127 || midi_note < 0);
 
     /* printf("MIDI note: ");
@@ -29,18 +29,19 @@ int main() {
     * }
     */
 
-    c5 = 220.0 * pow(semitone_ratio, 3); /* Frequency of middle C, three semitone above low A = 220hz */
-    c0 = c5 * pow(0.5, 5); /* Calculate frequency of c0, 5 octives below middle C */
+    c5 = 220.0 * pow(semitone_ratio, 3.0); /* Frequency of middle C, three semitone above low A = 220hz */
+    c0 = c5 * pow(0.5, 5.0); /* Calculate frequency of c0, 5 octives below middle C */
 
-    frequency = c0 * pow(semitone_ratio, midi_note);
+    frequency = c0 * pow(semitone_ratio, (double) midi_note);
     printf("MIDI note %d is %s, the frequency is %f.\n", midi_note, notes[midi_note%12], frequency);
 
     /* REVERSE UNO CARD */
     /* find nearset MIDI note to a given frequency in Hz */
-    frequency = 400;
+    frequency = 400.0;
     fracmidi = log(frequency / c0) / log(semitone_ratio); /* use the log rule */
     midi_note = (int) (fracmidi + 0.5);
-    printf("The nearest MIDI note to the frequency %f is %d, which is %s.\n", frequency, midi_note, notes[midi_note%12]); 
+    printf("The nearest MIDI note to the frequency %d is %d, which is %s.\n",
+           (int) frequency, midi_note, notes[midi_note%12]); 
 
     return 0;
 }
