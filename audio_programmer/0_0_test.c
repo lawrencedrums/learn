@@ -28,11 +28,11 @@ void message_printer(int times, void (*callback) (char *msg), char *user_msg) {
 }
 
 void message_of_the_day(char *msg) {
-    printf("Message of the day: %s \n", msg);
+    printf("Message of the day: %s\n", msg);
 }
 
 void special_message(char *msg) {
-    printf("A special message for ya: %s \n", msg);
+    printf("A special message for ya: %s\n", msg);
 }
 
 
@@ -70,8 +70,17 @@ int main() {
 
     my_structs();
 
-    message_printer(1, message_of_the_day, "Hello world!");
-    message_printer(3, special_message, "Goodbye world!");
+	/* Pointer to char: hello_world now holds the address of the start of the string */
+	char* hello_world = "Hello world!";
+
+	/* Creating char array requires giving the size only with empty initialistion
+	 * i.e. char bye_world[14];
+     *      bye_world = "Goodbye world!";
+	 */
+	char bye_world[] = "Goodbye world!";
+
+    message_printer(1, message_of_the_day, hello_world);
+    message_printer(3, special_message, bye_world);
 
     return 0;
 }
