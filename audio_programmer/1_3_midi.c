@@ -4,26 +4,21 @@
 #include <stdlib.h>
 #include <math.h>
 
-int main() {
+int main(int argc, char* argv[]) {
 	double c0, c5, semitone_ratio, freq;
 	int midinote;
-	char message[256]; // holds the user's input
 
 	semitone_ratio = pow(2.0, 1.0/12.0);
 	c5 = 220.0 * pow(semitone_ratio, 3);
 	c0 = c5 * pow(0.5, 5);
 
-	printf("Enter MIDI note (0-127): ");
-	if (gets(message) == NULL) { // handles input errors
-		printf("Error reading the input.\n");
-		return 1;
-	}
-	if (message[0] == '\0') { // handles empty input
-		printf("Well alright then!\n");
+	if (argc != 2) {
+		printf("usage: %s MIDINOTE\n", argv[0]);
+		printf("└─ MIDINOTE range: 0-127\n");
 		return 1;
 	}
 
-	midinote = atoi(message);
+	midinote = atoi(argv[1]);
 	if (midinote < 0 || midinote > 127) {
 		printf("The input MIDI note %d is out of range (0-127).\n", midinote);
 		return 1;
