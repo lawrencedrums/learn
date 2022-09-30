@@ -2,7 +2,13 @@
 /* Display E.T frequencies for an N-note octave, from a given MIDI note. */
 
 /**
- * A octave jump corresponds to a frequency change by a factor of 2. 
+ * Arguments
+ * ├─ Notes: int with range of 0-24. The number of notes to calc between an octave.
+ * ├─ Midinote: int with range of 0-127. The root of the octave in MIDI notation.
+ * └─ Scale: float with range of 1.0 - 8.0. The interval of notes to calc.
+ * 			 E.G. 2.0 = one octave, 1.5 = half an octave, 4.0 = two octaves.
+ *
+ * A octave jump corresponds to a frequency change by a factor of 2.
  * Double for octave rise, half for octave fall. E.G. A4 = 440Hz, A3 = 220Hz, A5 = 880Hz.
  * Therefore in 12 tone E.T, 1 semitone rise corresponds to a frequency rise of 2^(1/12)
  * which is approx. 1.0594631. As such, in a scale with E.G. 18 notes the semitone ratio
@@ -15,15 +21,16 @@
 #include <math.h>
 
 int main(int argc, char* argv[]) {
-	if (argc != 3) {
+	if (argc != 4) {
 		printf("usage: %s notes midinote\n", argv[0]);
-		printf("ranges ┬─ 0 <= notes <= 24\n");
-		printf("       └─ 0 <= midinote <= 127\n");
+		printf("ranges ─┬─ 0 <= notes <= 24\n");
+		printf("        ├─ 0 <= midinote <= 127\n");
+		printf("        └─ 1.0 <= scale <= 8.0\n");
 		return 1;
 	}
 	
 	int notes, midinote;
-	double frequency, ratio, c0, c5;
+	double frequency, end_frequency, ratio, c0, c5, scale;
 	double intervals[25];
 
 	notes = atoi(argv[1]);
@@ -38,6 +45,12 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	scale = atof(argv[3]);
+	if (scale < 1.0 || scale > 8.0) {
+		printf("Scale not supported (1.0-8.0)\n");
+		return 1;
+	}
+
 	/* calc 12 tone E.T semitone ratio */
 	ratio = pow(2.0, 1.0/12.0);
 	/* find middle C, which is 3 semitones above low A = 220 */
@@ -46,16 +59,19 @@ int main(int argc, char* argv[]) {
 	c0 = c5 * pow(0.5, 5.0);
 	frequency = c0 * pow(ratio, midinote);
 
-	/* calc new ratio from notes and fill the frequency array */
+	/* calc new ratio from notes */
 	ratio = pow(2.0, 1.0/notes);
-	for (int i = 0; i < notes+1; i++) {
-		intervals[i] = frequency;
+
+	/* calc and print frequencies of each note  */
+	int i = 1;
+	end_frequency = frequency * scale;
+	while (frequency < end_frequency) {
+		printf("%d: %.4f\n", i++, frequency);
 		frequency *= ratio;
 	}
 
-	for (int i = 0; i < notes+1; i++) {
-		printf("%d: %.2f\n", i, intervals[i]);
-	}
-	
+	/* print the last frequency */ 
+	printf("%d: %.4f\n", i, frequency);
+
 	return 0;
 }

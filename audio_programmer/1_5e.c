@@ -33,3 +33,6 @@
 /* Exercise 1.5.3. Modify Listing 1.5 to produce note+1 frequencies. */
 
 /* Exercise 1.5.4. Modify Listing 1.5 to include counter at start of line. */
+
+/* Exercise 1.5.5. Include scale as an argument in Listing 1.5. */
+
