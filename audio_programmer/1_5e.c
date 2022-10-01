@@ -36,3 +36,6 @@
 
 /* Exercise 1.5.5. Include scale as an argument in Listing 1.5. */
 
+// TODO
+/* Exercise 1.5.6. Use Csound to write the frequency into a sound file. */
+
