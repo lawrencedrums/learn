@@ -15,18 +15,23 @@ int main(int argc, char* argv[]) {
 	int notes;
 	int is_midi = 0;
 	int write_interval = 0;
+	int append_to_file = 0;
 	int err = 0;
 	double start_val, base_freq, ratio;
 	FILE* fp;
 	double intervals[25];
+	int flags = 0;
+	int argc_copy = argc;
 
 	/* check first arg for flag option: argc at least 2 */
 	while (argc > 1) {
 		if (argv[1][0] == '-') {
 			if (argv[1][1] == 'm') {
 				is_midi = 1;
-			} else if (argv[1][0] == 'i') {
+			} else if (argv[1][1] == 'i') {
 				write_interval = 1;
+			} else if (argv[1][1] == 'a') {
+				append_to_file = 1;
 			} else {
 				printf("error: unrecognized option %s\n", argv[1]);
 				return 1;
@@ -34,6 +39,7 @@ int main(int argc, char* argv[]) {
 			/* step up to next arg */
 			argc--;
 			argv++;
+			flags++;
 		} else {
 			break;
 		}
@@ -41,7 +47,15 @@ int main(int argc, char* argv[]) {
 
 	if (argc < 3) {
 		printf("insufficient arguments\n");
-		printf("usage: iscale [-m] [-i] N start_val [outfile.txt]\n");
+		printf("usage: iscale [-m] [-i] [-a] N start_val [outfile.txt]\n");
+		printf(" -m : set format of start_val as MIDI note\n");
+		printf(" -i : prints the calculated interval "
+			   "as well as the absolute frequency.\n");
+		printf(" -a : append data to output text file with the same name.\n");
+		printf(" N : number of notes to calculate in one octave. "
+		       "0 <= N <= 24\n");
+		printf(" start_val : the raw hertz value of the starting note. "
+			   "start_val > 0.0\n");
 		return 1;
 	}
 /* now read and check all arguments */
@@ -64,7 +78,7 @@ int main(int argc, char* argv[]) {
 		}
 	} else { /* it's freq: must be positive number */
 		if (start_val <= 0.0) { /* check low limit */
-			printf("error: frequency startval musb be positive.\n");
+			printf("error: frequency start_val must be positive.\n");
 			return 1;
 		}
 	}
@@ -72,7 +86,12 @@ int main(int argc, char* argv[]) {
 	/* check for optional filename */
 	fp = NULL;
 	if (argc == 4) {
-		fp = fopen(argv[3], "w");
+		if (append_to_file) {
+			fp = fopen(argv[3], "a");
+		} else {
+			fp = fopen(argv[3], "w");
+		}
+
 		if (fp == NULL) {
 			printf("WARNING: unable to create file %s\n", argv[3]);
 			perror("");
@@ -99,20 +118,38 @@ int main(int argc, char* argv[]) {
 		base_freq *= ratio;
 	}
 
+/* create new empty line if in append_to_file mode*/
+	if (append_to_file) {
+		fprintf(fp, "\n");
+	};
+
+/* print to file the full command line */
+	if (fp) {
+		argv -= flags;
+
+		for (int i = 0; i < argc_copy; i++) {
+			err = fprintf(fp, "%s ", argv[i]);
+		}
+		fprintf(fp, "\n");
+	}
+
 /* read array, write to screen, and optionally to file */
 	for (int i = 0; i <= notes; i++) {
+		double curr_interval = pow(ratio, i);
+		double curr_freq = intervals[i];
+
 		if (write_interval) {
-			printf("%d:\t%f\t%f\n", i, pow(ratio, i), intervals[i]);
+			printf("%d:\t%f\t%f\n", i, curr_interval, curr_freq);
 		} else {
-			printf("%d:\t%f\n", i, intervals[i]);
+			printf("%d:\t%f\n", i, curr_freq);
 		}
 		
 		if (fp) {
 			if (write_interval) {
 				err = fprintf(fp, "%d:\t%f\t%f\n",
-							  i, pow(ratio, i), intervals[i]);
+							  i, curr_interval, curr_freq);
 			} else {
-				err = fprintf(fp, "%d:\t%f\n", i, intervals[i]);
+				err = fprintf(fp, "%d:\t%f\n", i, curr_freq);
 			}
 			
 			if (err < 0) {
