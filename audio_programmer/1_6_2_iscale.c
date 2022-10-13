@@ -153,7 +153,8 @@ int main(int argc, char* argv[]) {
 			}
 			
 			if (err < 0) {
-				break;
+				printf("Error writing to file. Closing...\n");
+				fclose(fp);
 			}
 		}
 	}

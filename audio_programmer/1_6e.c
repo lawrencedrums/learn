@@ -9,5 +9,5 @@
 
 /* Exercise 1.6.5. Include full command line in output text file  */
 
-/* TO-DO. Exercise 1.6.6. */
+/* Exercise 1.6.6. Error writing to file will not stop printing to terminal */
 
