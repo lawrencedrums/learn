@@ -9,8 +9,8 @@
 
 
 typedef struct breakpoint {
-    double time;
     double value;
+    double time;
 } BREAKPOINT;
 
 
@@ -36,7 +36,7 @@ BREAKPOINT maxpoint(const BREAKPOINT* points, long npoints) {
 
 BREAKPOINT* get_breakpoints(FILE* fp, long* psize) {
     int got;
-    long npoints = 0, size = 64;
+    unsigned long npoints = 0, size = 64;
     double lasttime = 0.0;
     BREAKPOINT* points = NULL;
     char line[80];
@@ -52,11 +52,11 @@ BREAKPOINT* get_breakpoints(FILE* fp, long* psize) {
 
         if (got < 0) continue; /* empty line */
         if (got == 0) {
-            printf("Line %d has non-numeric data\n", npoints+1);
+            printf("Line %lu has non-numeric data\n", npoints+1);
             break;
         }
         if (got == 1) {
-            printf("Incomplete breakpoint found at point %d\n",
+            printf("Incomplete breakpoint found at point %lu\n",
                     npoints+1);
             break;
         }
@@ -82,6 +82,36 @@ BREAKPOINT* get_breakpoints(FILE* fp, long* psize) {
 
     if (npoints) *psize = npoints;
     return points;
+}
+
+
+void normalize(BREAKPOINT* points, BREAKPOINT maxpoint, long size) {
+    double minvalue = 1;
+
+    for (int i = 0; i < size; i++) {
+        if (points[i].value < minvalue) {
+            minvalue = points[i].value;
+        }
+    }
+
+    for (int i = 0; i < size; i++) {
+        points[i].value = (points[i].value - minvalue)
+            / (maxpoint.value - minvalue) * maxpoint.value;
+    }
+
+    printf("\nNormalized against %f\n", maxpoint.value);
+    for (int i = 0; i < size; i++) {
+        printf("%f %f\n", points[i].time, points[i].value);
+    }
+}
+
+
+void scalevalue(BREAKPOINT* points, long size, double scale) {
+    printf("\nScaling all values by %f...\n", scale);
+
+    for (int i = 0; i < size; i++) {
+        printf("%f %f\n", points[i].time, points[i].value * scale);
+    }
 }
 
 
@@ -132,6 +162,9 @@ int main(int argc, char* argv[]) {
     point = maxpoint(points, size);
     printf("maximum value: %f at %f secs\n", point.value, point.time);
     
+    // normalize(points, point, size);
+    scalevalue(points, size, 0.3);
+
     free(points);
     fclose(fp);
     
