@@ -1,4 +1,4 @@
-/* Listing 1.8.1. P. */
+/* Listing 1.8.1. P.150. */
 
 /* Calculate an exponential decay by implementing the formula
  * x[t] = a exp(-k/t)
@@ -8,6 +8,8 @@
  * to write to a file
  *
  * add the flag -lm if encountering undefined error
+ *
+ * follow P.154 for plotting in log scale
  */
 
 #include<stdio.h>
