@@ -4,7 +4,6 @@
  *   a) i.  The curve grows logarithmically instead of exponentially. 
  *      ii. This attack curve can be seen in fade ins and fade outs, or synths.
  *   b) modify code to eliminate duplicate calculations
- *
  */
 
 #include<stdio.h>

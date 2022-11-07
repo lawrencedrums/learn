@@ -7,7 +7,7 @@
 /* Defended against negative number in number of points */
 
 /* Exercise 1.7.4 */
-/* Add more functionailities to the BREAKPOINT array
+/* Add tranformation functions to the BREAKPOINT array
  * the follow tasks can be done inplace:
  *     b) normalizing relative to some maximum value
  *     c) shift values up or down
