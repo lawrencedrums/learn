@@ -7,13 +7,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<string.h>
 
 #ifndef M_PI
 #define M_PI (3.141592654)
 #endif
 
 enum {ARG_NAME, ARG_OUTFILE, ARG_DUR, ARG_HZ,
-        ARG_SR, ARG_AMP, ARG_NARGS};
+        ARG_SR, ARG_AMP, ARG_FUNC, ARG_NARGS};
 
 int tfork_simple(char *file_path) {
     int sr, n_samps;
@@ -23,8 +24,8 @@ int tfork_simple(char *file_path) {
     double max_samp = 0.0;
     FILE *fp = NULL;
 
-    if (ARG_NARGS != 7) {
-        printf("usage: tfork outfile.txt dur freq s_rate slope\n");
+    if (ARG_NARGS != 8) {
+        printf("usage: tfork outfile.txt dur freq s_rate slope function\n");
         return 1;
     }
 
@@ -74,14 +75,15 @@ int main(int argc, char **argv) {
     double start, end, fac, angle_incr;
     double two_pi = 2.0 * M_PI;
     FILE *fp = NULL;
+    char *func = argv[ARG_FUNC];
 
     if (argc != ARG_NARGS) {
-        printf("usage: %s outfile.txt dur freq s_rate amp\n",
+        printf("usage: %s outfile.txt dur freq s_rate amp function\n",
                 argv[ARG_NAME]);
         return 1;
     }
 
-    fp = fopen(argv[ARG_OUTFILE], "W");
+    fp = fopen(argv[ARG_OUTFILE], "w");
     if (fp == NULL) {
         printf("Error creating output file %s\n",
                 argv[ARG_OUTFILE]);
@@ -92,6 +94,7 @@ int main(int argc, char **argv) {
     freq = atof(argv[ARG_HZ]);
     s_rate = atof(argv[ARG_SR]);
     amp = atof(argv[ARG_AMP]);
+
     n_samps = (int) (dur * s_rate);
     angle_incr = two_pi * freq / n_samps;
     
@@ -101,7 +104,12 @@ int main(int argc, char **argv) {
     fac = pow(end/start, 1.0/n_samps);
 
     for (int i = 0; i < n_samps; i++) {
-        samp = amp * sin(angle_incr * i);
+        if (strcmp(func, "sin")) {
+            samp = amp * sin(angle_incr * i);
+        } else if (strcmp(func, "cos")) {
+            samp = amp * cos(angle_incr * i);
+        }
+
         samp *= start;
         start *= fac;
         

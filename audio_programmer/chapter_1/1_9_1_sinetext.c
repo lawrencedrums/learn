@@ -47,9 +47,10 @@ int main(int argc, char **argv) {
     // simple_sine();
     
     int n_samps;
-    double samp, freq, s_rate;
+    double sin_samp, cos_samp, freq, s_rate;
     double two_pi = 2.0 * M_PI;
     double angle_incr;
+    short s_samps;
 
     if (argc != ARG_NARGS) {
         fprintf(stderr,
@@ -62,10 +63,15 @@ int main(int argc, char **argv) {
     freq        = atof(argv[ARG_FREQ]);
     s_rate      = atof(argv[ARG_SR]);
     angle_incr  = two_pi * freq / s_rate;
+    
+    for (int i = 0; i < n_samps; i++) {
+        // sin_samp = sin(angle_incr * i);
+        // cos_samp = cos(angle_incr * i);
 
-for (int i = 0; i < n_samps; i++) {
-        samp = sin(angle_incr * i);
-        fprintf(stdout, "%.8lf\n", samp);
+        sin_samp = sin(angle_incr * i);
+        s_samps = (short) (sin_samp * 32767.0);
+
+        fprintf(stdout, "%d\n", s_samps);
     }
 
     fprintf(stderr, "done\n");

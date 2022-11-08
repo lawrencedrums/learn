@@ -13,7 +13,7 @@
 #endif
 
 enum {
-    ARG_NAME, ARG_OUTFILE, ARG_DUR, ARG_HZ, 
+    ARG_NAME, ARG_OUTFILE, ARG_DUR, ARG_MIDI, 
     ARG_SR, ARG_AMP, ARG_TYPE, ARG_NARGS
 };
 
@@ -45,17 +45,39 @@ int main(int argc, char **argv) {
     float f_samp;
     short s_samp;
 
+    int midi_note;
+    double c0, c5, semitone_ratio;
+
     if (argc != ARG_NARGS) {
-        printf("Usage: %s outsfile.raw dur"
-                "freq s_rate amp is_float\n",
+        printf("Usage: %s outsfile.raw dur "
+               "midi_note s_rate amp is_float\n",
                 argv[ARG_NAME]);
         return 1;
     }
 
     dur = atof(argv[ARG_DUR]);
-    freq = atof(argv[ARG_HZ]);
+    if (dur < 0.0) {
+        printf("dur must be > 0.0\n");
+        return 1;
+    }
+
+    midi_note = atoi(argv[ARG_MIDI]);
+    if (midi_note < 1 || midi_note > 127) {
+        printf("midinote must be 1 - 127\n");
+        return 1;
+    }
+
     s_rate = atof(argv[ARG_SR]);
+    if (s_rate < 0.0) {
+        printf("Sample rate must be > 0.0\n");
+        return 1;
+    }
+
     amp = atof(argv[ARG_AMP]);
+    if (amp < 0.0) {
+        printf("Amplitude must be > 0.0\n");
+        return 1;
+    }
 
     samp_type = (unsigned int) atoi(argv[ARG_TYPE]);
     if (samp_type > 1) {
@@ -71,6 +93,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    semitone_ratio = pow(2.0, 1.0/12.0);
+    c5 = 220.0 * pow(semitone_ratio, 3.0);
+    c0 = c5 * pow(0.5, 5);
+    freq = c0 * pow(semitone_ratio, midi_note);
+
     n_samps = (int) (dur * s_rate);
     angle_incr = two_pi * freq / n_samps;
     step = dur / n_samps;
@@ -83,6 +110,7 @@ int main(int argc, char **argv) {
 
     endian = byte_order();
     printf("Writing %d %s samples\n", n_samps, endianness[endian]);
+    printf("MIDI note %d has frequency of %f\n", midi_note, freq);
 
     /* run the loop for this samp_type */
     if (samp_type == RAWSAMP_SHORT) {
@@ -96,6 +124,7 @@ int main(int argc, char **argv) {
 
             if (fwrite(&s_samp, sizeof(short), 1, fp) != 1) {
                 printf("Error writing data to file\n");
+                fclose(fp);
                 return 1;
             }
     
@@ -113,6 +142,7 @@ int main(int argc, char **argv) {
 
             if (fwrite(&f_samp, sizeof(float), 1, fp) != 1) {
                 printf("Error writing data to file\n");
+                fclose(fp);
                 return 1;
             }    
     
