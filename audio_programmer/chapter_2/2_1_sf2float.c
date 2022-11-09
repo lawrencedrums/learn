@@ -15,9 +15,9 @@ int main(int argc, char **argv) {
     /* init all resources vars to default states */
     int ifd = -1, ofd = -1;
     int error = 0;
-    pfs_format out_format = PSF_FMT_UNKNOWN;
+    psf_format out_format = PSF_FMT_UNKNOWN;
     PSF_CHPEAK* peaks = NULL;
-    floast* frame = NULL;
+    float* frame = NULL;
 
     printf("SF2FLOAT: convert sound file to floats format\n");
 
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     ifd = psf_sndOpen(argv[ARG_INFILE], &props, 0);
     if (ifd < 0) {
         printf("Error: unable to open infile %s\n",
-                avgv[ARG_INFILE]);
+                argv[ARG_INFILE]);
         return 1;
     }
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     while (frames_read == 1) {
         total_read++;
 
-        if (psf_sedWriteFloatFrames(ofd, frame, 1) != 1) {
+        if (psf_sndWriteFloatFrames(ofd, frame, 1) != 1) {
             printf("Error writing to outfile\n");
             error++;
             break;
