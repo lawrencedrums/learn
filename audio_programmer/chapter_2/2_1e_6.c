@@ -7,7 +7,7 @@
 #include <math.h>
 #include <portsf.h>
 
-enum {ARG_PROGNAME, ARG_INFILE, ARG_OUTFILE, ARG_LIMIT, ARG_NARGS};
+enum {ARG_PROGNAME, ARG_INFILE, ARG_OUTFILE, ARG_NCOPY, ARG_NARGS};
 
 int main(int argc, char **argv) {
     PSF_PROPS props;
@@ -19,15 +19,16 @@ int main(int argc, char **argv) {
     psf_format out_format = PSF_FMT_UNKNOWN;
     PSF_CHPEAK* peaks = NULL;
     float* frame = NULL;
-    int frame_buffer = 100;
+    int frame_buffer;
     float peak_dB;
-    long copy_limit, infile_size;
+    int n_copy, n_loop;
+    long loop_range, current_loop;
 
     printf("SF2FLOAT: convert sound file to floats format\n");
 
     if (argc < ARG_NARGS) {
         printf("insufficient arguments.\n"
-               "usage:\n\t%s infile outfile\n",
+               "usage:\n\t%s infile outfile n_copy\n",
                argv[ARG_PROGNAME]);
         return 1;
     }
@@ -47,6 +48,12 @@ int main(int argc, char **argv) {
     /* tell user if source file is already floats */
     if (props.samptype == PSF_SAMP_IEEE_FLOAT) {
         printf("Info: infile is already in floats format.\n");
+    }
+
+    n_copy = atoi(argv[ARG_NCOPY]);
+    if (n_copy < 1) {
+        printf("n_copy less than 1, defaulting to 1");
+        n_copy = 1;
     }
     
     props.samptype = PSF_SAMP_IEEE_FLOAT;
@@ -71,7 +78,7 @@ int main(int argc, char **argv) {
     }
 
     /* allocate space for one sample frame */
-    frame = (float*) malloc(frame_buffer * props.chans * sizeof(float));
+    frame = (float*) malloc(props.chans * sizeof(float));
     if (frame == NULL) {
         puts("No memory!\n");
         error++;
@@ -86,34 +93,32 @@ int main(int argc, char **argv) {
         goto exit;
     }
 
-    copy_limit = atoi(argv[ARG_LIMIT]);
-    infile_size = psf_sndSize(ifd);
-    if (copy_limit > infile_size) {
-        printf("Error: copy upper limit exceed infile size of %ld samples\n",
-                infile_size);
-        error++;
-        goto exit;
-    }
-
-    printf("copying %ld of %ld samples\n", copy_limit, infile_size);
-
     /* single-frame loop to do copy, report any errors */
-    frames_read = psf_sndReadFloatFrames(ifd, frame, frame_buffer);
+    frames_read = psf_sndReadFloatFrames(ifd, frame, 1);
     total_read = 0; /* running count of sample frames */
-    while (frames_read == frame_buffer && total_read < copy_limit) {
-        total_read += frame_buffer;
-        if (total_read % 10000 == 0 || total_read == infile_size) {
-            printf("\r%d samples copied", total_read);
-        }
+    current_loop = 0;
+    while (frames_read == 1) {
+        total_read++;
+        current_loop++;
 
-        if (psf_sndWriteFloatFrames(ofd, frame, frame_buffer) != frame_buffer) {
+        if (psf_sndWriteFloatFrames(ofd, frame, 1) != 1) {
             printf("Error writing to outfile\n");
             error++;
             break;
         }
 
+        if (n_loop == n_copy) {
+            break;
+        }
+
+        if (current_loop == psf_sndSize(ifd)) {
+            n_loop++;
+            current_loop = 0;
+            frames_read = psf_sndSeek(ifd, 0, PSF_SEEK_SET);
+        }
+
         /* <---- do any processing here ----> */
-        frames_read = psf_sndReadFloatFrames(ifd, frame, frame_buffer);
+        frames_read = psf_sndReadFloatFrames(ifd, frame, 1);
     }
 
     printf("\n");
