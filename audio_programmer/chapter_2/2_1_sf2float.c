@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
     psf_format out_format = PSF_FMT_UNKNOWN;
     PSF_CHPEAK* peaks = NULL;
     float* frame = NULL;
+    int frame_buffer = 100;
 
     printf("SF2FLOAT: convert sound file to floats format\n");
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
     }
 
     /* allocate space for one sample frame */
-    frame = (float*) malloc(props.chans * sizeof(float));
+    frame = (float*) malloc(frame_buffer * props.chans * sizeof(float));
     if (frame == NULL) {
         puts("No memory!\n");
         error++;
@@ -85,20 +86,25 @@ int main(int argc, char **argv) {
     printf("copying....\n");
 
     /* single-frame loop to do copy, report any errors */
-    frames_read = psf_sndReadFloatFrames(ifd, frame, 1);
+    frames_read = psf_sndReadFloatFrames(ifd, frame, frame_buffer);
     total_read = 0; /* running count of sample frames */
-    while (frames_read == 1) {
-        total_read++;
+    while (frames_read == frame_buffer) {
+        total_read += frame_buffer;
+        if (total_read % 10000 == 0) {
+            printf("\r%d samples copied", total_read);
+        }
 
-        if (psf_sndWriteFloatFrames(ofd, frame, 1) != 1) {
+        if (psf_sndWriteFloatFrames(ofd, frame, frame_buffer) != frame_buffer) {
             printf("Error writing to outfile\n");
             error++;
             break;
         }
 
-        /* <---- do any processing herr ----> */
-        frames_read = psf_sndReadFloatFrames(ifd, frame, 1);
+        /* <---- do any processing here ----> */
+        frames_read = psf_sndReadFloatFrames(ifd, frame, frame_buffer);
     }
+
+    printf("\n");
 
     if (frames_read < 0) {
         printf("Error reading infile. Outfile is incomplete.\n");
