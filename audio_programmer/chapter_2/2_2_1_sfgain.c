@@ -42,7 +42,13 @@ int main(int argc, char **argv) {
     amp_fac = atof(argv[ARG_GAIN]);
     if (amp_fac <= 0.0) {
         printf("Error: gain must be positive\n");
-        return 1;
+        error++;
+        goto exit;
+    } else if (amp_fac == 1.0) {
+        printf("Gain of 1.0 results in no change amplitude.\n"
+               "Exiting...\n");
+        error++;
+        goto exit;
     }
 
     out_format = psf_getFormatExt(argv[ARG_OUTFILE]);

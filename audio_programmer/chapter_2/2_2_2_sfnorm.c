@@ -7,8 +7,10 @@
 #include <portsf.h>
 
 #define NFRAMES (1024)
+#define max(x, y) ((x > y) ? (x) : (y))
 
 enum {ARG_PROGNAME, ARG_INFILE, ARG_OUTFILE, ARG_DB, ARG_NARGS};
+
 
 double max_samp(float *buf, unsigned long blocksize) {
     /* Return the value of the absolute peak sample in the input buffer.
@@ -24,14 +26,12 @@ double max_samp(float *buf, unsigned long blocksize) {
 
     for (i = 0; i < blocksize; i++) {
         abs_val = fabs(buf[i]);
-
-        if (abs_val > peak) {
-            peak = abs_val;
-        }
+        peak = max(abs_val, peak);
     }
 
     return peak;
 }
+
 
 int main(int argc, char **argv) {
     printf("sfnorm.c: normalise a sound file level.\n");
@@ -91,9 +91,7 @@ int main(int argc, char **argv) {
     /* get peak info: scan file if required */
     if (psf_sndReadPeaks(ifd, peaks, NULL) > 0) {
         for (long i = 0; i < props.chans; i++) {
-            if (peaks[i].val > infile_peak) {
-                infile_peak = peaks[i].val;
-            }
+            infile_peak = max(infile_peak, peaks[i].val);
         }
     } else {
         /* scan file, and rewind */
@@ -101,11 +99,8 @@ int main(int argc, char **argv) {
         while (frames_read > 0) {
             blocksize = props.chans;
             double this_peak = max_samp(p_frame, blocksize);
+            infile_peak = max(infile_peak, this_peak);
 
-            if (this_peak > infile_peak) {
-                infile_peak = this_peak;
-            }
-        
             frames_read = psf_sndReadFloatFrames(ifd, p_frame, nframes);
         }
 
