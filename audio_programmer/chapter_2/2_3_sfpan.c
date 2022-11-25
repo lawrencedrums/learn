@@ -6,6 +6,7 @@
 #include <math.h>
 #include <portsf.h>
 
+
 enum {ARG_PROGNAME, ARG_INFILE, ARG_OUTFILE, ARG_PANPOS, ARG_NARGS};
 #define BUFFER (1024)
 
