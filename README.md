@@ -1,5 +1,10 @@
 # learn
 
-This repository holds the code and notes for interesting concepts, system, analysis, exercises, questions from books I've read.
+### audio_programmer 
+Code listings, and my answers for the exercises from "The Audio Programming Book".
 
-*audio_programmer* - Code listings, and my answers for the exercises from "The Audio Programming Book".
+### rust
+The journey through "The Rust Programming Language"
+
+### other
+Random pieces of code
