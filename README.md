@@ -1,10 +1,10 @@
 # learn
 
-### audio_programmer 
+### `audio_programmer`
 Code listings, and my answers for the exercises from "The Audio Programming Book".
 
-### rust
+### `rust`
 The journey through "The Rust Programming Language"
 
-### other
+### `other`
 Random pieces of code
