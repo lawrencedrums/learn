@@ -35,4 +35,5 @@ ieee80.o: ieee80.c ieee80.h
 
 portsf.o: portsf.c 
 	sudo cp ../include/portsf.h /usr/include
-	$(CC) $(CFLAGS) portsf.c 
+	$(CC) $(CFLAGS) portsf.c
+
