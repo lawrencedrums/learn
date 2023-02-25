@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <breakpoints.h>
 
 
 BREAKPOINT maxpoint(const BREAKPOINT* points, long npoints) {
@@ -81,5 +82,32 @@ int in_range(const BREAKPOINT* points,
         }
     }
     return is_in_range;
+}
+
+
+double val_at_brktime(const BREAKPOINT* points, unsigned long n_points, double time) {
+    unsigned long i;
+    BREAKPOINT left, right;
+    double frac, val, width;
+
+    /* scan until we find a span containing our time */
+    for (i = 0; i < n_points; i++) {
+        if (time <= points[i].time) break;
+    }
+
+    /* maintain final value if time beyond end of data */
+    if (i == n_points) return points[i-1].value;
+    left = points[i-1];
+    right = points[i];
+    
+    /* check for instant jump - two points with same time */
+    width = right.time - left.time;
+    if (width == 0.0) return right.value;
+
+    /* get value from this span using linear interpolation */
+    frac = (time - left.time) / width;
+    val = left.value + ((right.value - left.value) * frac);
+
+    return val;
 }
 

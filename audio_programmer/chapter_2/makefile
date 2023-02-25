@@ -1,3 +1,3 @@
-sfpan: sfpan.c breakpoints.c ./lib/libportsf.a
-	   $(CC) -o sfpan sfpan.c breakpoints.c $(INCLUDES) $(LIBS)
+2_3_sfpan: 2_3_sfpan.c breakpoints.c ../materials/portsf/libportsf.a
+	   	   $(CC) -o 2_3_sfpan 2_3_sfpan.c breakpoints.c $(INCLUDES) $(LIBS)
 
