@@ -19,8 +19,8 @@ fn main() {
     let mut count = 0;
     let lang = Lang::Rust;
     if let Lang::Rust = lang {
-        println!("One of us! One of us!");
         count += 1;
+        println!("{} Rust enjoyers", count);
     } else {
         println!("Python... typical");
     }
