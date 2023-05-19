@@ -22,7 +22,40 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.file_path)?;
 
-    println!("Text:\n{contents}");
+    for line in search(&config.query, &contents) {
+        println!("{line}");
+    }
 
     Ok(())
+}
+
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
+
+    results
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_search_one_result() {
+        let query = "wings";
+        let contents = "\
+            Just you imagine the damage that's done
+            when you fly with wax wings in the sun.
+            The machine is turning me";
+
+        assert_eq!(
+            vec!["when you fly with wax wings in the sun."],
+            search(query, contents)
+        );
+    }
 }
