@@ -26,6 +26,17 @@ impl<T> Deref for MyBox<T> {
     }
 }
 
+struct CustomSmartPointer {
+    data: String,
+}
+
+// you can specify the code to run when a value goes out of scope
+impl Drop for CustomSmartPointer {
+    fn drop(&mut self) {
+        println!("Dropping CustomSmartPointer with data `{}`!", self.data);
+    }
+}
+
 fn hello(name: &str) {
     println!("Hello {name}!");
 }
@@ -49,4 +60,20 @@ fn main() {
 
     let m = MyBox::new(String::from("Lawrence"));
     hello(&m); // deref coercion turns `&MyBox<String>` into `&String`
-} 
+
+    let c = CustomSmartPointer {
+        data: String::from("my data"),
+    };
+    let d = CustomSmartPointer {
+        data: String::from("your data"),
+    };
+    println!("CustomSmartPointers created");
+
+    let drop_me = CustomSmartPointer {
+        data: String::from("please drop me"),
+    };
+    // cannot force the `drop` method
+    // drop_me.drop() <- err! not allowned!
+    drop(drop_me);
+    println!("CustomSmartPointer dropped before the end of main");
+}
