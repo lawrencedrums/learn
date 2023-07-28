@@ -73,7 +73,7 @@ fn main() {
         data: String::from("please drop me"),
     };
     // cannot force the `drop` method
-    // drop_me.drop() <- err! not allowned!
+    // drop_me.drop() <- err! not allowed!
     drop(drop_me);
     println!("CustomSmartPointer dropped before the end of main");
 }

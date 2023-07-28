@@ -48,5 +48,5 @@ fn main() {
     println!(
         "The user with preference {:?} gets {:?}",
         user_pref2, giveaway2
-    );  
+    );
 }
